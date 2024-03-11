@@ -1,5 +1,11 @@
 from src.repositories.node_repository import NodeRepository
-from src.schemas.nodes import MessageNode, ConditionNode, CreateCondition, UpdateMessageNode, UpdateConditionNode
+from src.schemas.nodes import (
+    MessageNode,
+    ConditionNode,
+    CreateCondition,
+    UpdateMessageNode,
+    UpdateConditionNode,
+)
 from src.utils.file_storage import FileStorage
 
 
@@ -32,10 +38,14 @@ class NodeService:
     async def delete_node(self, workflow_id: int, node_id: int):
         return await self.node_repository.delete_node(workflow_id, node_id)
 
-    async def update_message_node(self, workflow_id: int, updated_node_data: UpdateMessageNode):
+    async def update_message_node(
+        self, workflow_id: int, updated_node_data: UpdateMessageNode
+    ):
         data = updated_node_data.dict()
         return await self.node_repository.update_message_node(workflow_id, data)
 
-    async def update_condition_node(self, workflow_id: int, updated_node_data: UpdateConditionNode):
+    async def update_condition_node(
+        self, workflow_id: int, updated_node_data: UpdateConditionNode
+    ):
         data = updated_node_data.dict()
         return await self.node_repository.update_condition_node(workflow_id, data)

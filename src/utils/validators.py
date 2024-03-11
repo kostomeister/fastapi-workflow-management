@@ -26,7 +26,9 @@ def async_value_error_handler():
                 return await func(*args, **kwargs)
             except ValueError as e:
                 raise HTTPException(status_code=404, detail=str(e))
+
         return wrapped
+
     return wrapper
 
 
@@ -36,4 +38,5 @@ def sync_value_error_handler(func):
             return func(*args, **kwargs)
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
+
     return wrapper

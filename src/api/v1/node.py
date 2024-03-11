@@ -1,5 +1,11 @@
 from fastapi import APIRouter, Depends
-from src.schemas.nodes import CreateCondition, MessageNode, ConditionNode, UpdateMessageNode, UpdateConditionNode
+from src.schemas.nodes import (
+    CreateCondition,
+    MessageNode,
+    ConditionNode,
+    UpdateMessageNode,
+    UpdateConditionNode,
+)
 from src.services.node_service import NodeService
 from src.utils.dependencies import get_node_service
 
