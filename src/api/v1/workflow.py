@@ -8,7 +8,7 @@ workflow_router = APIRouter()
 
 
 @workflow_router.post("/workflows")
-async def get_workflows(
+async def create_workflow(
     workflow: WorkflowCreate,
     workflow_service: WorkflowService = Depends(get_workflow_service),
 ):

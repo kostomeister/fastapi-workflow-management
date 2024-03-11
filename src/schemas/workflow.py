@@ -1,6 +1,4 @@
-from uuid import uuid4
-
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class WorkflowBase(BaseModel):
@@ -19,5 +17,4 @@ class Workflow(WorkflowBase):
     id: int
     file_url: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

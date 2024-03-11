@@ -11,7 +11,9 @@ class EdgeValidator:
         elif "type" in source_node_dict and source_node_dict["type"] == "message":
             EdgeValidator._validate_message_node(source_node_dict, target_node, graph)
         elif "type" in source_node_dict and source_node_dict["type"] == "condition":
-            EdgeValidator._validate_condition_node(source_node_dict, target_node, graph, decision)
+            EdgeValidator._validate_condition_node(
+                source_node_dict, target_node, graph, decision
+            )
         elif "type" in source_node_dict and source_node_dict["type"] == "end":
             EdgeValidator._validate_end_node(source_node_dict, target_node, graph)
 
@@ -28,10 +30,16 @@ class EdgeValidator:
             raise ValueError("MessageNode can have only one outgoing edge")
 
     @staticmethod
-    def _validate_condition_node(source_node, target_node, graph: nx.DiGraph, decision: str = None):
+    def _validate_condition_node(
+        source_node, target_node, graph: nx.DiGraph, decision: str = None
+    ):
         if decision:
-            if source_node[decision]:
-                raise ValueError("ConditionNode cannot have more than one yes or no node")
+            if source_node.get(decision):
+                raise ValueError(
+                    "ConditionNode cannot have more than one yes or no node"
+                )
+        else:
+            raise ValueError("ConditionNode can have only yes or no node")
 
     @staticmethod
     def _validate_end_node(source_node, target_node, graph: nx.DiGraph):
