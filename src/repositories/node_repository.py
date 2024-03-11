@@ -1,3 +1,5 @@
+import networkx as nx
+
 from src.models.workflow import Workflow
 from src.repositories.sqlalchemy_repository import SQLAlchemyRepository
 from src.utils.edge_validator import EdgeValidator
@@ -212,8 +214,12 @@ class NodeRepository(SQLAlchemyRepository):
                 data.get("id") == updated_node_data["id"]
                 and data.get("type") == "message"
             ):
-                data["message"] = updated_node_data["message"]
-                data["status"] = updated_node_data["status"]
+                nx.set_node_attributes(workflow_graph, {
+                    node: {
+                        "message": updated_node_data["message"],
+                        "status": updated_node_data["status"]
+                    }
+                })
                 await self.file_storage.save_workflow_file(
                     workflow.file_url, workflow_graph.name, workflow_graph
                 )
@@ -233,7 +239,11 @@ class NodeRepository(SQLAlchemyRepository):
                 data.get("id") == updated_node_data["id"]
                 and data.get("type") == "condition"
             ):
-                data["condition"] = updated_node_data["condition"]
+                nx.set_node_attributes(workflow_graph, {
+                    node: {
+                        "condition": updated_node_data["condition"],
+                    }
+                })
                 await self.file_storage.save_workflow_file(
                     workflow.file_url, workflow_graph.name, workflow_graph
                 )
