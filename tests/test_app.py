@@ -54,8 +54,8 @@ async def test_add_start_node_to_workflow(ac):
     assert "id" in response.json()
     assert response.json()["type"] == "start"
 
-    with pytest.raises(ValueError) as exc_info:
-        await ac.post(f"/workflows/{workflow_id}/nodes/start")
+    response = await ac.post(f"/workflows/{workflow_id}/nodes/start")
+    assert response.status_code == 404
 
 
 async def test_add_message_node_to_workflow(ac):
@@ -101,8 +101,8 @@ async def test_add_end_node_to_workflow(ac):
     assert "id" in response.json()
     assert response.json()["type"] == "end"
 
-    with pytest.raises(ValueError) as exc_info:
-        await ac.post(f"/workflows/{workflow_id}/nodes/end")
+    response = await ac.post(f"/workflows/{workflow_id}/nodes/end")
+    assert response.status_code == 404
 
 
 async def test_delete_workflow(ac):
