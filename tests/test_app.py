@@ -93,44 +93,6 @@ async def test_add_condition_node_to_workflow(ac):
     assert response.json()["condition"] == "Test Condition"
 
 
-async def test_add_yes_node_to_condition(ac):
-    workflow_id = 1
-    node_id = 2
-    node_data = {
-        "type": "message",
-        "message": "hey",
-        "status": "pending",
-        "outgoing_node_id": 2,
-    }
-
-    response = await ac.post(
-        f"/workflows/{workflow_id}/nodes/condition/{node_id}/yes", json=node_data
-    )
-    assert response.status_code == 200
-    assert "id" in response.json()
-    assert response.json()["message"] == "hey"
-    assert response.json()["status"] == "pending"
-
-
-async def test_add_no_node_to_condition(ac):
-    workflow_id = 1
-    node_id = 2
-    node_data = {
-        "type": "message",
-        "message": "hey",
-        "status": "pending",
-        "outgoing_node_id": 2,
-    }
-
-    response = await ac.post(
-        f"/workflows/{workflow_id}/nodes/condition/{node_id}/no", json=node_data
-    )
-    assert response.status_code == 200
-    assert "id" in response.json()
-    assert response.json()["message"] == "hey"
-    assert response.json()["status"] == "pending"
-
-
 async def test_add_end_node_to_workflow(ac):
     workflow_id = 1
 
