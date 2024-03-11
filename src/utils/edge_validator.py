@@ -32,6 +32,8 @@ class EdgeValidator:
         if decision:
             if source_node.get(decision):
                 raise ValueError("ConditionNode cannot have more than one yes or no node")
+        else:
+            raise ValueError("ConditionNode can have only yes or no node")
 
     @staticmethod
     def _validate_end_node(source_node, target_node, graph: nx.DiGraph):
