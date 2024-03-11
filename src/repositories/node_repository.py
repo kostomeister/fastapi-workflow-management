@@ -3,6 +3,7 @@ from src.repositories.sqlalchemy_repository import SQLAlchemyRepository
 from src.utils.edge_validator import EdgeValidator
 from src.utils.file_storage import FileStorage
 from src.utils.nodes import StartNode, MessageNode, ConditionNode, EndNode
+from src.utils.validators import value_error_handler
 
 
 class NodeRepository(SQLAlchemyRepository):
@@ -12,6 +13,7 @@ class NodeRepository(SQLAlchemyRepository):
         super().__init__(session)
         self.file_storage = file_storage
 
+    @value_error_handler()
     async def add_start_node(self, id: int):
         workflow = await super().get_one(id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -33,6 +35,7 @@ class NodeRepository(SQLAlchemyRepository):
         )
         return start
 
+    @value_error_handler()
     async def add_message_node(
         self,
         id: int,
@@ -58,6 +61,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return message_node
 
+    @value_error_handler()
     async def add_condition_node(
         self, id: int, condition: str, outgoing_node_ids: list[int], decision: str = None
     ):
@@ -78,6 +82,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return condition_node
 
+    @value_error_handler()
     async def add_yes_node(self, id: int, data: dict):
         decision = "yes"
 
@@ -102,6 +107,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return node
 
+    @value_error_handler()
     async def add_no_node(self, id: int, data: dict):
         decision = "no"
 
@@ -126,6 +132,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return node
 
+    @value_error_handler()
     async def add_end_node(self, id: int):
         workflow = await super().get_one(id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -158,6 +165,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return end_node
 
+    @value_error_handler()
     async def delete_node(self, workflow_id: int, node_id: int):
         workflow = await super().get_one(workflow_id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -189,6 +197,37 @@ class NodeRepository(SQLAlchemyRepository):
         else:
             raise ValueError("Node with the specified ID does not exist.")
 
+    @value_error_handler()
+    async def update_message_node(self, workflow_id: int, updated_node_data: dict):
+        workflow = await super().get_one(workflow_id)
+        workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
+        node_list = list(workflow_graph.nodes(data=True))
+
+        for node, data in node_list:
+            if data.get("id") == updated_node_data["node_id"] and data.get("type") == "message":
+                data["message"] = updated_node_data["message"]
+                data["status"] = updated_node_data["status"]
+                await self.file_storage.save_workflow_file(
+                    workflow.file_url, workflow_graph.name, workflow_graph
+                )
+                return data
+        raise ValueError("Message node with the specified ID not found in the workflow.")
+
+    @value_error_handler()
+    async def update_condition_node(self, workflow_id: int, updated_node_data: dict):
+        workflow = await super().get_one(workflow_id)
+        workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
+        node_list = list(workflow_graph.nodes(data=True))
+
+        for node, data in node_list:
+            if data.get("id") == updated_node_data["node_id"] and data.get("type") == "condition":
+                data["condition"] = updated_node_data["condition"]
+                await self.file_storage.save_workflow_file(
+                    workflow.file_url, workflow_graph.name, workflow_graph
+                )
+                return data
+        raise ValueError("Condition node with the specified ID not found in the workflow.")
+
     @staticmethod
     def _add_edge(workflow_graph, node, outgoing_node_ids, decision: str = None):
         node_data = node.__dict__
@@ -217,32 +256,3 @@ class NodeRepository(SQLAlchemyRepository):
                 raise ValueError(f"Outgoing node with ID {outgoing_node_id} not found.")
 
         return workflow_graph
-
-    async def update_message_node(self, workflow_id: int, updated_node_data: dict):
-        workflow = await super().get_one(workflow_id)
-        workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
-        node_list = list(workflow_graph.nodes(data=True))
-
-        for node, data in node_list:
-            if data.get("id") == updated_node_data["node_id"] and data.get("type") == "message":
-                data["message"] = updated_node_data["message"]
-                data["status"] = updated_node_data["status"]
-                await self.file_storage.save_workflow_file(
-                    workflow.file_url, workflow_graph.name, workflow_graph
-                )
-                return data
-        raise ValueError("Message node with the specified ID not found in the workflow.")
-
-    async def update_condition_node(self, workflow_id: int, updated_node_data: dict):
-        workflow = await super().get_one(workflow_id)
-        workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
-        node_list = list(workflow_graph.nodes(data=True))
-
-        for node, data in node_list:
-            if data.get("id") == updated_node_data["node_id"] and data.get("type") == "condition":
-                data["condition"] = updated_node_data["condition"]
-                await self.file_storage.save_workflow_file(
-                    workflow.file_url, workflow_graph.name, workflow_graph
-                )
-                return data
-        raise ValueError("Condition node with the specified ID not found in the workflow.")
