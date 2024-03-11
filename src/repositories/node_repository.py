@@ -3,7 +3,7 @@ from src.repositories.sqlalchemy_repository import SQLAlchemyRepository
 from src.utils.edge_validator import EdgeValidator
 from src.utils.file_storage import FileStorage
 from src.utils.nodes import StartNode, MessageNode, ConditionNode, EndNode
-from src.utils.validators import value_error_handler
+from src.utils.validators import async_value_error_handler, sync_value_error_handler
 
 
 class NodeRepository(SQLAlchemyRepository):
@@ -13,7 +13,7 @@ class NodeRepository(SQLAlchemyRepository):
         super().__init__(session)
         self.file_storage = file_storage
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def add_start_node(self, id: int):
         workflow = await super().get_one(id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -35,7 +35,7 @@ class NodeRepository(SQLAlchemyRepository):
         )
         return start
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def add_message_node(
         self,
         id: int,
@@ -61,7 +61,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return message_node
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def add_condition_node(
         self, id: int, condition: str, outgoing_node_ids: list[int], decision: str = None
     ):
@@ -82,7 +82,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return condition_node
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def add_yes_node(self, id: int, data: dict):
         decision = "yes"
 
@@ -107,7 +107,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return node
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def add_no_node(self, id: int, data: dict):
         decision = "no"
 
@@ -132,7 +132,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return node
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def add_end_node(self, id: int):
         workflow = await super().get_one(id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -165,7 +165,7 @@ class NodeRepository(SQLAlchemyRepository):
 
         return end_node
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def delete_node(self, workflow_id: int, node_id: int):
         workflow = await super().get_one(workflow_id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -197,7 +197,7 @@ class NodeRepository(SQLAlchemyRepository):
         else:
             raise ValueError("Node with the specified ID does not exist.")
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def update_message_node(self, workflow_id: int, updated_node_data: dict):
         workflow = await super().get_one(workflow_id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -213,7 +213,7 @@ class NodeRepository(SQLAlchemyRepository):
                 return data
         raise ValueError("Message node with the specified ID not found in the workflow.")
 
-    @value_error_handler()
+    @async_value_error_handler()
     async def update_condition_node(self, workflow_id: int, updated_node_data: dict):
         workflow = await super().get_one(workflow_id)
         workflow_graph = self.file_storage.read_workflow_file(workflow.file_url)
@@ -229,6 +229,7 @@ class NodeRepository(SQLAlchemyRepository):
         raise ValueError("Condition node with the specified ID not found in the workflow.")
 
     @staticmethod
+    @sync_value_error_handler
     def _add_edge(workflow_graph, node, outgoing_node_ids, decision: str = None):
         node_data = node.__dict__
 
